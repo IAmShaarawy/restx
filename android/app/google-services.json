@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "294311764959",
+    "firebase_url": "https://restx-ccf93.firebaseio.com",
+    "project_id": "restx-ccf93",
+    "storage_bucket": "restx-ccf93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294311764959:android:d6a9672ad9d30e4b949a6a",
+        "android_client_info": {
+          "package_name": "dev.elshaarawy.restx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "294311764959-oeqm0sis02at02avlnghs2i0sv3740fg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkAQuXNBeS_6-26_-J--P6EP8vqVUPdT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "294311764959-oeqm0sis02at02avlnghs2i0sv3740fg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

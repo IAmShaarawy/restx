@@ -38,5 +38,5 @@ lib/generated_plugin_registrant.dart
 
 # igonre firebase certificates for ios the GoogleService-Info.plist and for android the google-services.json
 
-ios/Runner/GoogleService-Info.plist
-android/app/google-services.json
+#ios/Runner/GoogleService-Info.plist
+#android/app/google-services.json
