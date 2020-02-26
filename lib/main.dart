@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Authentication.dart';
-import 'package:restx/screens/Home.dart';
-import 'package:restx/screens/Loading.dart';
+import 'package:restx/screens/Constants.dart';
+import 'package:restx/screens/Menu.dart';
+import 'package:restx/screens/QrScanner.dart';
 import 'package:restx/screens/Splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,29 +18,37 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Widget _home = Splash();
-
-  _MyAppState() {
-    FirebaseAuth.instance.currentUser().then((user) {
-      new Timer(Duration(seconds: 3), () {
-        final Widget targetHome = user == null ? Authentication() : Home();
-        setState(() {
-          _home = targetHome;
-        });
-      });
-    });
-  }
-
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        theme: ThemeData(
-          primaryColor: Colors.teal.shade400,
-          primaryColorDark: Colors.teal.shade700,
-        ),
-        routes: {
-          '/home': (ctx) => Home(),
-          '/auth': (ctx) => Authentication(),
-        },
-        home: _home,
-      );
+  Widget build(BuildContext context) => StreamBuilder<Widget>(
+      initialData: Splash(),
+      stream: findInitialState().asStream(),
+      builder: (ctx, home) {
+        print(home.data.toString());
+        return MaterialApp(
+          navigatorKey: navigatorKey,
+          theme: ThemeData(
+            primaryColor: Colors.teal.shade400,
+            primaryColorDark: Colors.teal.shade700,
+          ),
+          routes: {
+            ROUTE_QR: (ctx) => QrScanner(),
+            ROUTE_MENU: (ctx) => Menu(),
+            ROUTE_AUTH: (ctx) => Authentication(),
+          },
+          home: home.data,
+        );
+      });
+
+  Future<Widget> findInitialState() async {
+    var user = await FirebaseAuth.instance.currentUser();
+    await Future.delayed(Duration(seconds: 3));
+    if (user == null) return Authentication();
+
+    String tableNumber =
+        (await SharedPreferences.getInstance()).getString(TABLE_NUMBER);
+
+    if (tableNumber == null) return QrScanner();
+
+    return Menu();
+  }
 }
