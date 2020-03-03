@@ -16,24 +16,26 @@ class _MenuState extends State<Menu> {
       appBar: AppBar(
         title: Text("Menu"),
         actions: <Widget>[
-          FlatButton(
-            child: Icon(
-              Icons.time_to_leave,
+          IconButton(
+            icon: Icon(
+              Icons.swap_calls,
               color: Colors.white,
             ),
+            tooltip: "Table",
+            onPressed: _onChangeTable,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.settings_power,
+              color: Colors.white,
+            ),
+            tooltip: "Logout",
             onPressed: () async {
               await (await SharedPreferences.getInstance())
                   .setString(TABLE_NUMBER, null);
               await FirebaseAuth.instance.signOut();
               navigatorKey.currentState.pushReplacementNamed(ROUTE_AUTH);
             },
-          ),
-          FlatButton(
-            child: Icon(
-              Icons.swap_calls,
-              color: Colors.white,
-            ),
-            onPressed: _onChangeTable,
           ),
         ],
       ),
@@ -69,7 +71,7 @@ class _MenuState extends State<Menu> {
         builder: (context) {
           return Container(
             color: Color(0xFF737373),
-            height: 50,
+            height: 200,
             child: Container(
               decoration: BoxDecoration(
                   color: Theme.of(context).canvasColor,
@@ -87,26 +89,48 @@ class _MenuState extends State<Menu> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        FlatButton(
-          child: Icon(
-            Icons.swap_calls,
-            color: Colors.teal,
-            size: 5,
-          ),
-          onPressed: () {
-            Navigator.pushNamed(context, ROUTE_QR);
-          },
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              splashColor: Colors.teal,
+              iconSize: 100,
+              icon: Icon(
+                Icons.swap_calls,
+                color: Colors.teal,
+              ),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, ROUTE_QR);
+              },
+            ),
+            Text(
+              "Change Table",
+              style: TextStyle(color: Colors.teal),
+            )
+          ],
         ),
-        FlatButton(
-          child: Icon(
-            Icons.power_settings_new,
-            color: Colors.redAccent,
-          ),
-          onPressed: () async {
-            await (await SharedPreferences.getInstance())
-                .setString(TABLE_NUMBER, null);
-            Navigator.pushReplacementNamed(context, ROUTE_QR);
-          },
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              splashColor: Colors.redAccent,
+              iconSize: 100,
+              icon: Icon(
+                Icons.power_settings_new,
+                color: Colors.redAccent,
+              ),
+              onPressed: () async {
+                await (await SharedPreferences.getInstance())
+                    .setString(TABLE_NUMBER, null);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, ROUTE_QR, ModalRoute.withName("/"));
+              },
+            ),
+            Text(
+              "Leave Table",
+              style: TextStyle(color: Colors.redAccent),
+            )
+          ],
         ),
       ],
     );
