@@ -9,8 +9,8 @@ import 'package:restx/screens/Menu.dart';
 import 'package:restx/screens/QrScanner.dart';
 import 'package:restx/screens/Splash.dart';
 import 'package:restx/screens/UserHome.dart';
+import 'package:restx/screens/waiter/Table.dart' as WaiterTable;
 import 'package:restx/screens/waiter/WaiterHome.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -39,6 +39,7 @@ class _MyAppState extends State<MyApp> {
             ROUTE_AUTH: (ctx) => Authentication(),
             ROUTE_USER_HOME: (ctx) => UserHome(),
             ROUTE_WAITER_HOME: (ctx) => WaiterHome(),
+            ROUTE_WAITER_TABLE: (ctx) => WaiterTable.Table(),
           },
           home: home.data,
         );
