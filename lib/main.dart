@@ -9,7 +9,7 @@ import 'package:restx/screens/Menu.dart';
 import 'package:restx/screens/QrScanner.dart';
 import 'package:restx/screens/Splash.dart';
 import 'package:restx/screens/UserHome.dart';
-import 'package:restx/screens/WaiterHome.dart';
+import 'package:restx/screens/waiter/WaiterHome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
