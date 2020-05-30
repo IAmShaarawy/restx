@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:qrcode/qrcode.dart';
 import 'package:restx/screens/Loading.dart';
@@ -22,10 +24,33 @@ class _QrScannerState extends State<QrScanner> {
       setState(() {
         _isLoading = true;
       });
-      await (await SharedPreferences.getInstance())
-          .setString(TABLE_NUMBER, data);
-      await Future.delayed(Duration(seconds: 3));
-      navigatorKey.currentState.pushReplacementNamed(ROUTE_MENU);
+      try {
+        var tableRef = Firestore.instance.collection("tables").document(data);
+        var tableData = (await tableRef.get()).data;
+        if (tableData != null) {
+          if (tableData["current_user"] == null) {
+            var currentUserId = (await FirebaseAuth.instance.currentUser()).uid;
+            await tableRef.setData({"current_user": currentUserId});
+            navigatorKey.currentState.pushReplacementNamed(ROUTE_USER_HOME);
+          } else {
+            setState(() {
+              _isLoading = false;
+            });
+            _captureController.resume();
+          }
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+          _captureController.resume();
+        }
+      } catch (e) {
+        print(e);
+        setState(() {
+          _isLoading = false;
+        });
+        _captureController.resume();
+      }
     });
   }
 

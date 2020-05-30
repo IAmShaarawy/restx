@@ -51,6 +51,7 @@ class _MenuState extends State<Menu> {
                     stream: document.reference.collection('items').snapshots(),
                     builder: (context, snapshot) {
                       return ListTile(
+
                         title: Text(document['name']),
                         subtitle: Text("${document['price']} L.E"),
                         leading: SizedBox(

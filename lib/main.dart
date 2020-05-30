@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:html';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Authentication.dart';
@@ -7,6 +9,8 @@ import 'package:restx/screens/Constants.dart';
 import 'package:restx/screens/Menu.dart';
 import 'package:restx/screens/QrScanner.dart';
 import 'package:restx/screens/Splash.dart';
+import 'package:restx/screens/UserHome.dart';
+import 'package:restx/screens/WaiterHome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
@@ -34,6 +38,8 @@ class _MyAppState extends State<MyApp> {
             ROUTE_QR: (ctx) => QrScanner(),
             ROUTE_MENU: (ctx) => Menu(),
             ROUTE_AUTH: (ctx) => Authentication(),
+            ROUTE_USER_HOME: (ctx) => UserHome(),
+            ROUTE_WAITER_HOME: (ctx) => WaiterHome(),
           },
           home: home.data,
         );
@@ -44,11 +50,21 @@ class _MyAppState extends State<MyApp> {
     await Future.delayed(Duration(seconds: 3));
     if (user == null) return Authentication();
 
-    String tableNumber =
-        (await SharedPreferences.getInstance()).getString(TABLE_NUMBER);
+    DocumentReference udr =
+        Firestore.instance.collection("users").document(user.uid);
+    var userResult = (await udr.get()).data;
 
-    if (tableNumber == null) return QrScanner();
+    if (userResult["is_waiter"] as bool) return WaiterHome();
 
-    return Menu();
+    var table = (await Firestore.instance
+            .collection("tables")
+            .where("current_user", isEqualTo: user.uid)
+            .limit(1)
+            .getDocuments())
+        .documents;
+
+    if (table.length == 0) return QrScanner();
+
+    return UserHome();
   }
 }

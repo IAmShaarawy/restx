@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -87,28 +88,40 @@ class _AuthenticationState extends State<Authentication> {
     FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: _phoneTextController.text,
         timeout: Duration(seconds: 60),
-        verificationCompleted: (authCredentials) {
-          FirebaseAuth.instance.signInWithCredential(authCredentials).then(
-              (result) {
-            Navigator.pushReplacementNamed(ctx, ROUTE_QR);
-          }, onError: (error) {
-            setState(() {
-              print(error);
-              _error = error.code;
-              _enabled = true;
-              _loading = false;
-            });
-          });
+        verificationCompleted: (authCredentials) async {
+          try {
+            AuthResult result = await FirebaseAuth.instance
+                .signInWithCredential(authCredentials);
+            DocumentReference udr = Firestore.instance
+                .collection("users")
+                .document(result.user.uid);
+            var userResult = (await udr.get()).data;
+
+            if (userResult == null) {
+              await udr.setData({'is_waiter': false});
+              Navigator.pushReplacementNamed(ctx, ROUTE_QR);
+            } else {
+              if (userResult['is_waiter'] as bool) {
+                Navigator.pushReplacementNamed(ctx, ROUTE_WAITER_HOME);
+              }else{
+                Navigator.pushReplacementNamed(ctx, ROUTE_QR);
+              }
+            }
+          } catch (error) {
+            resolveError(error);
+          }
         },
-        verificationFailed: (error) {
-          setState(() {
-            print(error.message);
-            _error = error.code;
-            _enabled = true;
-            _loading = false;
-          });
-        },
+        verificationFailed: resolveError,
         codeSent: null,
         codeAutoRetrievalTimeout: null);
+  }
+
+  void resolveError(error) {
+    setState(() {
+      print(error.message);
+      _error = error.code;
+      _enabled = true;
+      _loading = false;
+    });
   }
 }
