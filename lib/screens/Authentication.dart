@@ -98,7 +98,7 @@ class _AuthenticationState extends State<Authentication> {
             var userResult = (await udr.get()).data;
 
             if (userResult == null) {
-              await udr.setData({'is_waiter': false});
+              await udr.setData({'is_waiter': false,"number":_phoneTextController.text});
               Navigator.pushReplacementNamed(ctx, ROUTE_QR);
             } else {
               if (userResult['is_waiter'] as bool) {
