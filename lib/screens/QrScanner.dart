@@ -25,13 +25,22 @@ class _QrScannerState extends State<QrScanner> {
         _isLoading = true;
       });
       try {
-        var tableRef = Firestore.instance.collection("tables").document(data);
+        var tablesRef = Firestore.instance.collection("tables");
+        var tableRef = tablesRef.document(data);
         var tableData = (await tableRef.get()).data;
         if (tableData != null) {
           if (tableData["current_user"] == null) {
             var currentUserId = (await FirebaseAuth.instance.currentUser()).uid;
-            await tableRef.setData({"current_user": currentUserId});
-            navigatorKey.currentState.pushReplacementNamed(ROUTE_USER_HOME);
+
+            var replacement =
+                await clearTableIfAvailable(tablesRef, currentUserId);
+            await tableRef
+                .setData({"current_user": currentUserId}, merge: true);
+            if (replacement) {
+              navigatorKey.currentState.pop([]);
+            } else {
+              navigatorKey.currentState.pushReplacementNamed(ROUTE_USER_HOME);
+            }
           } else {
             setState(() {
               _isLoading = false;
@@ -52,6 +61,22 @@ class _QrScannerState extends State<QrScanner> {
         _captureController.resume();
       }
     });
+  }
+
+  Future<bool> clearTableIfAvailable(
+      CollectionReference tablesRef, String userId) async {
+    var tables = (await tablesRef
+            .where("current_user", isEqualTo: userId)
+            .limit(1)
+            .getDocuments())
+        .documents;
+
+    if (tables.length == 0) return false;
+
+    await tablesRef
+        .document(tables[0].documentID)
+        .setData({"current_user": null, "plates": []}, merge: true);
+    return true;
   }
 
   @override

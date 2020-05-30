@@ -31,8 +31,7 @@ class _MenuState extends State<Menu> {
             ),
             tooltip: "Logout",
             onPressed: () async {
-              await (await SharedPreferences.getInstance())
-                  .setString(TABLE_NUMBER, null);
+              await clearTable();
               await FirebaseAuth.instance.signOut();
               navigatorKey.currentState.pushReplacementNamed(ROUTE_AUTH);
             },
@@ -51,7 +50,6 @@ class _MenuState extends State<Menu> {
                     stream: document.reference.collection('items').snapshots(),
                     builder: (context, snapshot) {
                       return ListTile(
-
                         title: Text(document['name']),
                         subtitle: Text("${document['price']} L.E"),
                         leading: SizedBox(
@@ -83,7 +81,8 @@ class _MenuState extends State<Menu> {
               child: _buildChangeTableBottomSheet(),
             ),
           );
-        });
+        },
+    useRootNavigator: true);
   }
 
   Widget _buildChangeTableBottomSheet() {
@@ -102,6 +101,7 @@ class _MenuState extends State<Menu> {
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, ROUTE_QR);
+
               },
             ),
             Text(
@@ -121,10 +121,10 @@ class _MenuState extends State<Menu> {
                 color: Colors.redAccent,
               ),
               onPressed: () async {
-                await (await SharedPreferences.getInstance())
-                    .setString(TABLE_NUMBER, null);
-                Navigator.pushNamedAndRemoveUntil(
+                await clearTable();
+                await Navigator.pushNamedAndRemoveUntil(
                     context, ROUTE_QR, ModalRoute.withName("/"));
+
               },
             ),
             Text(
@@ -135,5 +135,19 @@ class _MenuState extends State<Menu> {
         ),
       ],
     );
+  }
+
+  clearTable() async {
+    var userId = (await FirebaseAuth.instance.currentUser()).uid;
+    var tablesRef = Firestore.instance.collection("tables");
+    var tableId = (await tablesRef
+            .where("current_user", isEqualTo: userId)
+            .limit(1)
+            .getDocuments())
+        .documents[0]
+        .documentID;
+    await tablesRef
+        .document(tableId)
+        .setData({"current_user": null, "plates": []}, merge: true);
   }
 }
