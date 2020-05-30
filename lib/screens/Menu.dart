@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Constants.dart';
+import 'package:restx/screens/Loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatefulWidget {
@@ -41,28 +42,33 @@ class _MenuState extends State<Menu> {
       body: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance.collection('menu').snapshots(),
           builder: (context, snapshot) {
-            return ListView(
-                children: snapshot.data.documents.map((document) {
-              print(document['name']);
-              print(document['price']);
-              return Card(
-                child: StreamBuilder<QuerySnapshot>(
-                    stream: document.reference.collection('items').snapshots(),
-                    builder: (context, snapshot) {
-                      return ListTile(
-                        onTap: () async {
-                          await updateTableWithPlates(document.documentID);
-                        },
-                        title: Text(document['name']),
-                        subtitle: Text("${document['price']} L.E"),
-                        leading: SizedBox(
-                            height: 100,
-                            width: 100,
-                            child: Image.network(document['img'])),
-                      );
-                    }),
-              );
-            }).toList());
+            return !snapshot.hasData
+                ? Loading()
+                : ListView(
+                    children: snapshot.data.documents.map((document) {
+                    print(document['name']);
+                    print(document['price']);
+                    return Card(
+                      child: StreamBuilder<QuerySnapshot>(
+                          stream: document.reference
+                              .collection('items')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            return ListTile(
+                              onTap: () async {
+                                await updateTableWithPlates(
+                                    document.documentID);
+                              },
+                              title: Text(document['name']),
+                              subtitle: Text("${document['price']} L.E"),
+                              leading: SizedBox(
+                                  height: 100,
+                                  width: 100,
+                                  child: Image.network(document['img'])),
+                            );
+                          }),
+                    );
+                  }).toList());
           }),
     );
   }
