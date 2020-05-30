@@ -50,6 +50,9 @@ class _MenuState extends State<Menu> {
                     stream: document.reference.collection('items').snapshots(),
                     builder: (context, snapshot) {
                       return ListTile(
+                        onTap: () async {
+                          await updateTableWithPlates(document.documentID);
+                        },
                         title: Text(document['name']),
                         subtitle: Text("${document['price']} L.E"),
                         leading: SizedBox(
@@ -82,7 +85,7 @@ class _MenuState extends State<Menu> {
             ),
           );
         },
-    useRootNavigator: true);
+        useRootNavigator: true);
   }
 
   Widget _buildChangeTableBottomSheet() {
@@ -101,7 +104,6 @@ class _MenuState extends State<Menu> {
               ),
               onPressed: () {
                 Navigator.pushReplacementNamed(context, ROUTE_QR);
-
               },
             ),
             Text(
@@ -124,7 +126,6 @@ class _MenuState extends State<Menu> {
                 await clearTable();
                 await Navigator.pushNamedAndRemoveUntil(
                     context, ROUTE_QR, ModalRoute.withName("/"));
-
               },
             ),
             Text(
@@ -135,6 +136,23 @@ class _MenuState extends State<Menu> {
         ),
       ],
     );
+  }
+
+  updateTableWithPlates(String plateId) async {
+    var userId = (await FirebaseAuth.instance.currentUser()).uid;
+    var tablesRef = Firestore.instance.collection("tables");
+    var table = (await tablesRef
+            .where("current_user", isEqualTo: userId)
+            .limit(1)
+            .getDocuments())
+        .documents[0];
+
+    var plates = table.data["plates"];
+    plates.add(plateId);
+    print(plates);
+    await tablesRef
+        .document(table.documentID)
+        .setData({"plates": plates}, merge: true);
   }
 
   clearTable() async {
