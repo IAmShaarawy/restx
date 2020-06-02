@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:qrcode/qrcode.dart';
+import 'package:restx/screens/Constants.dart';
 import 'package:restx/screens/Loading.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'Constants.dart';
 
 class QrScanner extends StatefulWidget {
   @override
@@ -34,8 +32,10 @@ class _QrScannerState extends State<QrScanner> {
 
             var replacement =
                 await clearTableIfAvailable(tablesRef, currentUserId);
-            await tableRef
-                .setData({"current_user": currentUserId}, merge: true);
+            var orderId = await createEmptyOrder(currentUserId);
+            await tableRef.setData(
+                {"current_user": currentUserId, "order_id": orderId},
+                merge: true);
             if (replacement) {
               navigatorKey.currentState.pop([]);
             } else {
@@ -63,6 +63,17 @@ class _QrScannerState extends State<QrScanner> {
     });
   }
 
+  Future<String> createEmptyOrder(String userId) async {
+    var orderRef = Firestore.instance.collection("orders").document();
+    await orderRef.setData({
+      "user": userId,
+      "plates": [],
+      "waiter": null,
+      "state": UNDER_SELECTION
+    });
+    return orderRef.documentID;
+  }
+
   Future<bool> clearTableIfAvailable(
       CollectionReference tablesRef, String userId) async {
     var tables = (await tablesRef
@@ -75,7 +86,7 @@ class _QrScannerState extends State<QrScanner> {
 
     await tablesRef
         .document(tables[0].documentID)
-        .setData({"current_user": null, "plates": []}, merge: true);
+        .setData({"current_user": null, "order_id": null}, merge: true);
     return true;
   }
 

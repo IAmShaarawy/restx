@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Constants.dart';
 import 'package:restx/screens/Loading.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatefulWidget {
   @override
@@ -17,14 +16,6 @@ class _MenuState extends State<Menu> {
       appBar: AppBar(
         title: Text("Menu"),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.swap_calls,
-              color: Colors.white,
-            ),
-            tooltip: "Table",
-            onPressed: _onChangeTable,
-          ),
           IconButton(
             icon: Icon(
               Icons.settings_power,
@@ -56,7 +47,7 @@ class _MenuState extends State<Menu> {
                           builder: (context, snapshot) {
                             return ListTile(
                               onTap: () async {
-                                await updateTableWithPlates(
+                                await updateOrderWithPlates(
                                     document.documentID);
                               },
                               title: Text(document['name']),
@@ -73,78 +64,16 @@ class _MenuState extends State<Menu> {
     );
   }
 
-  void _onChangeTable() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            color: Color(0xFF737373),
-            height: 200,
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).canvasColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  )),
-              child: _buildChangeTableBottomSheet(),
-            ),
-          );
-        },
-        useRootNavigator: true);
+  updateOrderWithPlates(String plateId) async {
+    var orderId = await currentTableOrderId();
+    var orderRef = Firestore.instance.collection("orders").document(orderId);
+    var plates = (await orderRef.get()).data["plates"];
+    plates.add(plateId);
+    print(plates);
+    await orderRef.setData({"plates": plates}, merge: true);
   }
 
-  Widget _buildChangeTableBottomSheet() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            IconButton(
-              splashColor: Colors.teal,
-              iconSize: 100,
-              icon: Icon(
-                Icons.swap_calls,
-                color: Colors.teal,
-              ),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, ROUTE_QR);
-              },
-            ),
-            Text(
-              "Change Table",
-              style: TextStyle(color: Colors.teal),
-            )
-          ],
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            IconButton(
-              splashColor: Colors.redAccent,
-              iconSize: 100,
-              icon: Icon(
-                Icons.power_settings_new,
-                color: Colors.redAccent,
-              ),
-              onPressed: () async {
-                await clearTable();
-                await Navigator.pushNamedAndRemoveUntil(
-                    context, ROUTE_QR, ModalRoute.withName("/"));
-              },
-            ),
-            Text(
-              "Leave Table",
-              style: TextStyle(color: Colors.redAccent),
-            )
-          ],
-        ),
-      ],
-    );
-  }
-
-  updateTableWithPlates(String plateId) async {
+  Future<String> currentTableOrderId() async {
     var userId = (await FirebaseAuth.instance.currentUser()).uid;
     var tablesRef = Firestore.instance.collection("tables");
     var table = (await tablesRef
@@ -153,12 +82,7 @@ class _MenuState extends State<Menu> {
             .getDocuments())
         .documents[0];
 
-    var plates = table.data["plates"];
-    plates.add(plateId);
-    print(plates);
-    await tablesRef
-        .document(table.documentID)
-        .setData({"plates": plates}, merge: true);
+    return table.data["order_id"];
   }
 
   clearTable() async {

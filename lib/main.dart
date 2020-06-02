@@ -5,10 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Authentication.dart';
 import 'package:restx/screens/Constants.dart';
-import 'package:restx/screens/Menu.dart';
-import 'package:restx/screens/QrScanner.dart';
+import 'package:restx/screens/guest/Menu.dart';
 import 'package:restx/screens/Splash.dart';
-import 'package:restx/screens/UserHome.dart';
+import 'package:restx/screens/guest/QrScanner.dart';
+import 'package:restx/screens/guest/UserHome.dart';
 import 'package:restx/screens/waiter/Table.dart' as WaiterTable;
 import 'package:restx/screens/waiter/WaiterHome.dart';
 

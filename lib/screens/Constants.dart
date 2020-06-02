@@ -11,3 +11,9 @@ const String ROUTE_QR = '/qr';
 const String ROUTE_WAITER_HOME = '/waiter';
 const String ROUTE_WAITER_TABLE = '/waiter/table';
 const String ROUTE_USER_HOME = 'user';
+
+const UNDER_SELECTION = "under_selection";
+const UNDER_PREPARATION = "under_preparation";
+const UNDER_PICK = "under_pick";
+const UNDER_COOKING = "under_cooking";
+const SERVED = "served";
