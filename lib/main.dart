@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
             ROUTE_AUTH: (ctx) => Authentication(),
             ROUTE_USER_HOME: (ctx) => UserHome(),
             ROUTE_WAITER_HOME: (ctx) => WaiterHome(),
-            ROUTE_WAITER_TABLE: (ctx) => WaiterTable.Table(),
+            ROUTE_TABLE_ORDER: (ctx) => WaiterTable.Table(),
           },
           home: home.data,
         );
