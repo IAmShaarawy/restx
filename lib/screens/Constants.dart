@@ -18,3 +18,4 @@ const UNDER_PREPARATION = "under_preparation";
 const SERVED = "served";
 const WAITING_CHECK_OUT = "waiting_check_out";
 const CHECKED_OUT = "checked_out";
+const ARCHIVED = "archived";

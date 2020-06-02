@@ -59,6 +59,8 @@ class _CurrentOrderState extends State<CurrentOrder> {
                                                 .data.data["plates"] as List))
                                             .entries
                                             .map((p) {
+                                          onOrderStateChange(
+                                              orderSS.data.data["state"]);
                                           return Card(
                                             child:
                                                 StreamBuilder<DocumentSnapshot>(
@@ -180,7 +182,9 @@ class _CurrentOrderState extends State<CurrentOrder> {
   }
 
   bool decideFABAbility(String orderState) {
-    return orderState == UNDER_SELECTION || orderState == SERVED;
+    return orderState == UNDER_SELECTION ||
+        orderState == SERVED ||
+        orderState == CHECKED_OUT;
   }
 
   void onFAPClick(String orderState, String orderId) async {
@@ -189,7 +193,13 @@ class _CurrentOrderState extends State<CurrentOrder> {
       await orderRef.setData({"state": UNDER_PICK}, merge: true);
     }
 
-    if (orderState == SERVED) {}
+    if (orderState == SERVED) {
+      await orderRef.setData({"state": WAITING_CHECK_OUT}, merge: true);
+    }
+
+    if (orderState == CHECKED_OUT) {
+      await orderRef.setData({"state": ARCHIVED}, merge: true);
+    }
   }
 
   String getFAPLabel(String orderState) {
@@ -202,7 +212,9 @@ class _CurrentOrderState extends State<CurrentOrder> {
     if (orderState == SERVED || orderState == WAITING_CHECK_OUT)
       return "Checkout";
 
-    return "Thank you";
+    if (orderState == CHECKED_OUT) return "Thank you";
+
+    return "Archived";
   }
 
   IconData getFAPIcon(String orderState) {
@@ -215,7 +227,8 @@ class _CurrentOrderState extends State<CurrentOrder> {
     if (orderState == SERVED) return Icons.attach_money;
     if (orderState == WAITING_CHECK_OUT) return Icons.access_time;
 
-    return Icons.local_florist;
+    if (orderState == CHECKED_OUT) return Icons.local_florist;
+    return Icons.archive;
   }
 
   Color getFAPColor(String orderState) {
@@ -228,7 +241,9 @@ class _CurrentOrderState extends State<CurrentOrder> {
     if (orderState == SERVED || orderState == WAITING_CHECK_OUT)
       return Colors.black87;
 
-    return Colors.greenAccent;
+    if (orderState == CHECKED_OUT) return Colors.greenAccent;
+
+    return Colors.blueGrey;
   }
 
   Map<String, int> groupPlates(List plates) {
@@ -340,5 +355,13 @@ class _CurrentOrderState extends State<CurrentOrder> {
     await tablesRef
         .document(tableId)
         .setData({"current_user": null, "order_id": null}, merge: true);
+  }
+
+  onOrderStateChange(String state) async {
+    if (state == ARCHIVED) {
+      await Navigator.pushNamedAndRemoveUntil(
+          context, ROUTE_QR, ModalRoute.withName("/"));
+      await clearTable();
+    }
   }
 }

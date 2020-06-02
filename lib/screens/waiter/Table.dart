@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Constants.dart';
@@ -65,10 +66,8 @@ class _TableState extends State<Table> {
                         ? null
                         : () => onFAPClick(
                             ss.data.data["state"], ss.data.documentID),
-                    elevation: decideFABAbility(
-                        ss.data.data["state"])
-                        ? null
-                        : 0,
+                    elevation:
+                        decideFABAbility(ss.data.data["state"]) ? null : 0,
                     label: Text(getFAPLabel(ss.data.data["state"])),
                     icon: Icon(
                       getFAPIcon(ss.data.data["state"]),
@@ -82,16 +81,29 @@ class _TableState extends State<Table> {
   bool decideFABAbility(String orderState) {
     return orderState == UNDER_PICK ||
         orderState == UNDER_PREPARATION ||
-        orderState == WAITING_CHECK_OUT;
+        orderState == WAITING_CHECK_OUT ||
+        orderState == CHECKED_OUT;
   }
 
   void onFAPClick(String orderState, String orderId) async {
     var orderRef = Firestore.instance.collection("orders").document(orderId);
-    if (orderState == UNDER_SELECTION) {
-      await orderRef.setData({"state": UNDER_PICK}, merge: true);
+    if (orderState == UNDER_PICK) {
+      var user = await FirebaseAuth.instance.currentUser();
+      await orderRef.setData({"state": UNDER_PREPARATION, "waiter": user.uid},
+          merge: true);
     }
 
-    if (orderState == SERVED) {}
+    if (orderState == UNDER_PREPARATION) {
+      await orderRef.setData({"state": SERVED}, merge: true);
+    }
+
+    if (orderState == WAITING_CHECK_OUT) {
+      await orderRef.setData({"state": CHECKED_OUT}, merge: true);
+    }
+
+    if (orderState == CHECKED_OUT) {
+      await orderRef.setData({"state": ARCHIVED}, merge: true);
+    }
   }
 
   String getFAPLabel(String orderState) {
@@ -105,7 +117,9 @@ class _TableState extends State<Table> {
 
     if (orderState == WAITING_CHECK_OUT) return "Checkout Clint";
 
-    return "Happy Client";
+    if (orderState == CHECKED_OUT) return "Happy Client";
+
+    return "Archived";
   }
 
   IconData getFAPIcon(String orderState) {
@@ -117,8 +131,8 @@ class _TableState extends State<Table> {
 
     if (orderState == SERVED) return Icons.access_time;
     if (orderState == WAITING_CHECK_OUT) return Icons.attach_money;
-
-    return Icons.local_florist;
+    if (orderState == CHECKED_OUT) return Icons.local_florist;
+    return Icons.archive;
   }
 
   Color getFAPColor(String orderState) {
@@ -132,6 +146,8 @@ class _TableState extends State<Table> {
 
     if (orderState == WAITING_CHECK_OUT) return Colors.black87;
 
-    return Colors.greenAccent;
+    if (orderState == CHECKED_OUT) return Colors.greenAccent;
+
+    return Colors.blueGrey;
   }
 }
