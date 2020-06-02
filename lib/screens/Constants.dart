@@ -13,7 +13,8 @@ const String ROUTE_WAITER_TABLE = '/waiter/table';
 const String ROUTE_USER_HOME = 'user';
 
 const UNDER_SELECTION = "under_selection";
-const UNDER_PREPARATION = "under_preparation";
 const UNDER_PICK = "under_pick";
-const UNDER_COOKING = "under_cooking";
+const UNDER_PREPARATION = "under_preparation";
 const SERVED = "served";
+const WAITING_CHECK_OUT = "waiting_check_out";
+const CHECKED_OUT = "checked_out";
