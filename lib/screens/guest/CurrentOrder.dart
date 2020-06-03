@@ -26,7 +26,8 @@ class _CurrentOrderState extends State<CurrentOrder> {
                       .limit(1)
                       .snapshots(),
                   builder: (context, tableSS) {
-                    return !tableSS.hasData
+                    return !tableSS.hasData ||
+                            tableSS.data.documents.length == 0
                         ? Loading()
                         : StreamBuilder<DocumentSnapshot>(
                             // find current order
@@ -359,9 +360,9 @@ class _CurrentOrderState extends State<CurrentOrder> {
 
   onOrderStateChange(String state) async {
     if (state == ARCHIVED) {
+      await clearTable();
       await Navigator.pushNamedAndRemoveUntil(
           context, ROUTE_QR, ModalRoute.withName("/"));
-      await clearTable();
     }
   }
 }

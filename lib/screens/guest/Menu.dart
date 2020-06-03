@@ -96,6 +96,6 @@ class _MenuState extends State<Menu> {
         .documentID;
     await tablesRef
         .document(tableId)
-        .setData({"current_user": null, "orderr_id": null}, merge: true);
+        .setData({"current_user": null, "order_id": null}, merge: true);
   }
 }

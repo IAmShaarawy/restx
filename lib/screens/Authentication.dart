@@ -84,9 +84,9 @@ class _AuthenticationState extends State<Authentication> {
       _enabled = false;
       _loading = true;
     });
-    print(_phoneTextController.text);
+    print(pureNumber(_phoneTextController.text));
     FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: _phoneTextController.text,
+        phoneNumber: pureNumber(_phoneTextController.text),
         timeout: Duration(seconds: 60),
         verificationCompleted: (authCredentials) async {
           try {
@@ -100,13 +100,18 @@ class _AuthenticationState extends State<Authentication> {
             if (userResult == null) {
               var userName = "User ${userId.substring(0, 4)}";
               var userImg = "https://picsum.photos/seed/$userId/200";
+              var isWaiter = this.isWaiter(_phoneTextController.text);
               await udr.setData({
-                'is_waiter': false,
-                "number": _phoneTextController.text,
+                'is_waiter': isWaiter,
+                "number": pureNumber(_phoneTextController.text),
                 "name": userName,
                 "img": userImg
               });
-              Navigator.pushReplacementNamed(ctx, ROUTE_QR);
+              if (isWaiter) {
+                Navigator.pushReplacementNamed(ctx, ROUTE_WAITER_HOME);
+              } else {
+                Navigator.pushReplacementNamed(ctx, ROUTE_QR);
+              }
             } else {
               if (userResult['is_waiter'] as bool) {
                 Navigator.pushReplacementNamed(ctx, ROUTE_WAITER_HOME);
@@ -121,6 +126,14 @@ class _AuthenticationState extends State<Authentication> {
         verificationFailed: resolveError,
         codeSent: null,
         codeAutoRetrievalTimeout: null);
+  }
+
+  bool isWaiter(String number) {
+    return number.contains("**");
+  }
+
+  String pureNumber(String number) {
+    return number.replaceAll("**", "");
   }
 
   void resolveError(error) {
