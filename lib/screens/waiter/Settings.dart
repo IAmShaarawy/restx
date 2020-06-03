@@ -12,7 +12,7 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings"),
+        title: Text("Profile"),
       ),
       body: StreamBuilder<FirebaseUser>(
           stream: FirebaseAuth.instance.currentUser().asStream(),
@@ -33,6 +33,16 @@ class _SettingsState extends State<Settings> {
                       SizedBox(
                         height: 24,
                       ),
+                      Text(
+                        "Welcome",
+                        style: TextStyle(
+                            color: Colors.blueGrey,
+                            fontSize: 40,
+                            fontFamily: 'Lobster'),
+                      ),
+                      SizedBox(
+                        height: 24,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -47,7 +57,14 @@ class _SettingsState extends State<Settings> {
                           ),
                         ],
                       ),
-                      Text("Welcome\n${userSS.data.data["name"]}",style: TextStyle(color: Colors.blueGrey,fontSize: 20,fontFamily: 'Lobster'),)
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        "${userSS.data.data["name"]}",
+                        style: TextStyle(
+                            color: Colors.blueGrey, fontSize: 20),
+                      )
                     ],
                   );
                 });

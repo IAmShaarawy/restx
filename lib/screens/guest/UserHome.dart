@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:restx/screens/guest/CurrentOrder.dart';
 import 'package:restx/screens/guest/Menu.dart';
+import 'package:restx/screens/guest/PreviousOrders.dart';
 import 'package:restx/screens/guest/Settings.dart';
 
 class UserHome extends StatefulWidget {
@@ -10,7 +11,12 @@ class UserHome extends StatefulWidget {
 
 class _UserHomeState extends State<UserHome> {
   int _selectedIndex = 0;
-  List<Widget> _widgetOptions = <Widget>[Menu(), CurrentOrder(), Settings()];
+  List<Widget> _widgetOptions = <Widget>[
+    Menu(),
+    CurrentOrder(),
+    PreviousOrders(),
+    Settings()
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -25,6 +31,7 @@ class _UserHomeState extends State<UserHome> {
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.fastfood),
@@ -32,11 +39,15 @@ class _UserHomeState extends State<UserHome> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.blur_circular),
-            title: Text('Table'),
+            title: Text('order'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            title: Text('Settings'),
+            icon: Icon(Icons.history),
+            title: Text('History'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_pin),
+            title: Text('Profile'),
           ),
         ],
         currentIndex: _selectedIndex,

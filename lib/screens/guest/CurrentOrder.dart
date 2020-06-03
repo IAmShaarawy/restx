@@ -54,124 +54,122 @@ class _CurrentOrderState extends State<CurrentOrder> {
                                           ),
                                         ],
                                       ),
-                                      body: GridView.count(
-                                        crossAxisCount: 2,
-                                        children: groupPlates((orderSS
-                                                .data.data["plates"] as List))
-                                            .entries
-                                            .map((p) {
-                                          onOrderStateChange(
-                                              orderSS.data.data["state"]);
-                                          return Card(
-                                            child:
-                                                StreamBuilder<DocumentSnapshot>(
-                                                    stream: Firestore.instance
-                                                        .collection("menu")
-                                                        .document(
-                                                            p.key.toString())
-                                                        .snapshots(),
-                                                    builder: (context, ss1) {
-                                                      return !ss1.hasData
-                                                          ? Loading()
-                                                          : Container(
-                                                              child: Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .end,
-                                                                children: <
-                                                                    Widget>[
-                                                                  Expanded(
-                                                                    child: Image
-                                                                        .network(
-                                                                      ss1.data.data[
-                                                                          "img"],
-                                                                      fit: BoxFit
-                                                                          .fitWidth,
+                                      body: (orderSS.data.data["plates"]
+                                                      as List)
+                                                  .length ==
+                                              0
+                                          ? Center(
+                                              child: Text(
+                                                  "Select a plate from menu"),
+                                            )
+                                          : GridView.count(
+                                              crossAxisCount: 2,
+                                              children: groupPlates((orderSS
+                                                      .data
+                                                      .data["plates"] as List))
+                                                  .entries
+                                                  .map((p) {
+                                                onOrderStateChange(
+                                                    orderSS.data.data["state"]);
+                                                return Card(
+                                                  child:
+                                                      StreamBuilder<
+                                                              DocumentSnapshot>(
+                                                          stream: Firestore
+                                                              .instance
+                                                              .collection(
+                                                                  "menu")
+                                                              .document(p.key
+                                                                  .toString())
+                                                              .snapshots(),
+                                                          builder:
+                                                              (context, ss1) {
+                                                            return !ss1.hasData
+                                                                ? Loading()
+                                                                : Container(
+                                                                    child:
+                                                                        Column(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .end,
+                                                                      children: <
+                                                                          Widget>[
+                                                                        Expanded(
+                                                                          child:
+                                                                              Image.network(
+                                                                            ss1.data.data["img"],
+                                                                            fit:
+                                                                                BoxFit.fitWidth,
+                                                                          ),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              8,
+                                                                        ),
+                                                                        Text(
+                                                                            "${ss1.data.data["name"]}",
+                                                                            style:
+                                                                                Theme.of(context).textTheme.title),
+                                                                        Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceEvenly,
+                                                                          children: <
+                                                                              Widget>[
+                                                                            IconButton(
+                                                                              icon: Icon(
+                                                                                Icons.indeterminate_check_box,
+                                                                                color: Colors.redAccent,
+                                                                                size: 36,
+                                                                              ),
+                                                                              onPressed: !decidePlusAndMinusAbility(orderSS.data.data["state"]) ? null : () => changePlateCount(orderSS.data.documentID, p.key, false),
+                                                                            ),
+                                                                            Text(
+                                                                              "#${p.value}",
+                                                                              style: TextStyle(color: Colors.blueAccent),
+                                                                            ),
+                                                                            IconButton(
+                                                                              icon: Icon(
+                                                                                Icons.add_box,
+                                                                                color: Colors.greenAccent,
+                                                                                size: 36,
+                                                                              ),
+                                                                              onPressed: !decidePlusAndMinusAbility(orderSS.data.data["state"]) ? null : () => changePlateCount(orderSS.data.documentID, p.key, true),
+                                                                            )
+                                                                          ],
+                                                                        )
+                                                                      ],
                                                                     ),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    height: 8,
-                                                                  ),
-                                                                  Text(
-                                                                      "${ss1.data.data["name"]}",
-                                                                      style: Theme.of(
-                                                                              context)
-                                                                          .textTheme
-                                                                          .title),
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceEvenly,
-                                                                    children: <
-                                                                        Widget>[
-                                                                      IconButton(
-                                                                        icon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .indeterminate_check_box,
-                                                                          color:
-                                                                              Colors.redAccent,
-                                                                          size:
-                                                                              36,
-                                                                        ),
-                                                                        onPressed: !decidePlusAndMinusAbility(orderSS.data.data["state"])
-                                                                            ? null
-                                                                            : () => changePlateCount(
-                                                                                orderSS.data.documentID,
-                                                                                p.key,
-                                                                                false),
-                                                                      ),
-                                                                      Text(
-                                                                        "#${p.value}",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.blueAccent),
-                                                                      ),
-                                                                      IconButton(
-                                                                        icon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .add_box,
-                                                                          color:
-                                                                              Colors.greenAccent,
-                                                                          size:
-                                                                              36,
-                                                                        ),
-                                                                        onPressed: !decidePlusAndMinusAbility(orderSS.data.data["state"])
-                                                                            ? null
-                                                                            : () => changePlateCount(
-                                                                                orderSS.data.documentID,
-                                                                                p.key,
-                                                                                true),
-                                                                      )
-                                                                    ],
-                                                                  )
-                                                                ],
-                                                              ),
-                                                            );
-                                                    }),
-                                          );
-                                        }).toList(),
-                                      ),
-                                      floatingActionButton:
-                                          FloatingActionButton.extended(
-                                        onPressed: !decideFABAbility(
-                                                orderSS.data.data["state"])
-                                            ? null
-                                            : () => onFAPClick(
-                                                orderSS.data.data["state"],
-                                                orderSS.data.documentID),
-                                        elevation: decideFABAbility(
-                                                orderSS.data.data["state"])
-                                            ? null
-                                            : 0,
-                                        label: Text(getFAPLabel(
-                                            orderSS.data.data["state"])),
-                                        icon: Icon(getFAPIcon(
-                                            orderSS.data.data["state"])),
-                                        backgroundColor: getFAPColor(
-                                            orderSS.data.data["state"]),
-                                      ),
+                                                                  );
+                                                          }),
+                                                );
+                                              }).toList(),
+                                            ),
+                                      floatingActionButton: (orderSS.data
+                                                      .data["plates"] as List)
+                                                  .length ==
+                                              0
+                                          ? null
+                                          : FloatingActionButton.extended(
+                                              onPressed: !decideFABAbility(
+                                                      orderSS
+                                                          .data.data["state"])
+                                                  ? null
+                                                  : () => onFAPClick(
+                                                      orderSS
+                                                          .data.data["state"],
+                                                      orderSS.data.documentID),
+                                              elevation: decideFABAbility(
+                                                      orderSS
+                                                          .data.data["state"])
+                                                  ? null
+                                                  : 0,
+                                              label: Text(getFAPLabel(
+                                                  orderSS.data.data["state"])),
+                                              icon: Icon(getFAPIcon(
+                                                  orderSS.data.data["state"])),
+                                              backgroundColor: getFAPColor(
+                                                  orderSS.data.data["state"]),
+                                            ),
                                     );
                             });
                   });
