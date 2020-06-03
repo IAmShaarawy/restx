@@ -64,8 +64,7 @@ class _SettingsState extends State<Settings> {
                                 ),
                                 Text(
                                   "${userSS.data.data["name"]}",
-                                  style: TextStyle(
-                                      color: Colors.blueGrey, fontSize: 20),
+                                  style: TextStyle(fontSize: 20),
                                 )
                               ],
                             );

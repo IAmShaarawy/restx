@@ -30,12 +30,14 @@ class _TableState extends State<Table> {
                   ),
                   body: GridView.count(
                     crossAxisCount: 2,
-                    children: (ss.data.data["plates"] as List).map((p) {
+                    children: groupPlates((ss.data.data["plates"] as List))
+                        .entries
+                        .map((p) {
                       return Card(
                         child: StreamBuilder<DocumentSnapshot>(
                             stream: Firestore.instance
                                 .collection("menu")
-                                .document(p.toString())
+                                .document(p.key)
                                 .snapshots(),
                             builder: (context, ss1) {
                               return !ss1.hasData
@@ -46,11 +48,20 @@ class _TableState extends State<Table> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: <Widget>[
-                                          Image.network(
-                                            ss1.data.data["img"],
-                                            width: 150,
+                                          Expanded(
+                                            child: Image.network(
+                                              ss1.data.data["img"],
+                                              fit: BoxFit.fitWidth,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 8,
                                           ),
                                           Text(ss1.data.data["name"],
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .title),
+                                          Text("#${p.value}#",
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .title),
@@ -80,6 +91,7 @@ class _TableState extends State<Table> {
 
   bool decideFABAbility(String orderState) {
     return orderState == UNDER_PICK ||
+        orderState == WAITING_CONFIRM ||
         orderState == UNDER_PREPARATION ||
         orderState == WAITING_CHECK_OUT ||
         orderState == CHECKED_OUT;
@@ -89,8 +101,12 @@ class _TableState extends State<Table> {
     var orderRef = Firestore.instance.collection("orders").document(orderId);
     if (orderState == UNDER_PICK) {
       var user = await FirebaseAuth.instance.currentUser();
-      await orderRef.setData({"state": UNDER_PREPARATION, "waiter": user.uid},
-          merge: true);
+      await orderRef
+          .setData({"state": WAITING_CONFIRM, "waiter": user.uid}, merge: true);
+    }
+
+    if (orderState == WAITING_CONFIRM) {
+      await orderRef.setData({"state": UNDER_PREPARATION}, merge: true);
     }
 
     if (orderState == UNDER_PREPARATION) {
@@ -111,6 +127,8 @@ class _TableState extends State<Table> {
 
     if (orderState == UNDER_PICK) return "Pick Now";
 
+    if (orderState == WAITING_CONFIRM) return "Confirm";
+
     if (orderState == UNDER_PREPARATION) return "Serve";
 
     if (orderState == SERVED) return "Waiting Checkout";
@@ -127,6 +145,8 @@ class _TableState extends State<Table> {
 
     if (orderState == UNDER_PICK) return Icons.airplanemode_active;
 
+    if (orderState == WAITING_CONFIRM) return Icons.check;
+
     if (orderState == UNDER_PREPARATION) return Icons.send;
 
     if (orderState == SERVED) return Icons.access_time;
@@ -140,6 +160,8 @@ class _TableState extends State<Table> {
 
     if (orderState == UNDER_PICK) return Colors.blueAccent;
 
+    if (orderState == WAITING_CONFIRM) return Colors.teal;
+
     if (orderState == UNDER_PREPARATION) return Colors.redAccent;
 
     if (orderState == SERVED) return Colors.amberAccent;
@@ -149,5 +171,20 @@ class _TableState extends State<Table> {
     if (orderState == CHECKED_OUT) return Colors.greenAccent;
 
     return Colors.blueGrey;
+  }
+
+  Map<String, int> groupPlates(List plates) {
+    Map<String, int> groupedPlates = {};
+    plates.sort((e1, e2) {
+      return e1.compareTo(e2);
+    });
+    plates.forEach((e) {
+      groupedPlates.update(e, (v) {
+        return v + 1;
+      }, ifAbsent: () {
+        return 1;
+      });
+    });
+    return groupedPlates;
   }
 }

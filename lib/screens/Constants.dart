@@ -14,6 +14,7 @@ const String ROUTE_USER_HOME = 'user';
 
 const UNDER_SELECTION = "under_selection";
 const UNDER_PICK = "under_pick";
+const WAITING_CONFIRM = "waiting_confirm";
 const UNDER_PREPARATION = "under_preparation";
 const SERVED = "served";
 const WAITING_CHECK_OUT = "waiting_check_out";

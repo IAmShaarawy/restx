@@ -177,7 +177,9 @@ class _CurrentOrderState extends State<CurrentOrder> {
   }
 
   bool decidePlusAndMinusAbility(String orderState) {
-    return orderState == UNDER_SELECTION;
+    return orderState == UNDER_SELECTION ||
+        orderState == UNDER_PICK ||
+        orderState == WAITING_CONFIRM;
   }
 
   bool decideFABAbility(String orderState) {
@@ -206,12 +208,14 @@ class _CurrentOrderState extends State<CurrentOrder> {
 
     if (orderState == UNDER_PICK) return "Waiting Waiter";
 
+    if (orderState == WAITING_CONFIRM) return "Waiting Confirmation";
+
     if (orderState == UNDER_PREPARATION) return "Cooking";
 
     if (orderState == SERVED || orderState == WAITING_CHECK_OUT)
       return "Checkout";
 
-    if (orderState == CHECKED_OUT) return "Thank you";
+    if (orderState == CHECKED_OUT) return "Feedback";
 
     return "Archived";
   }
@@ -221,12 +225,14 @@ class _CurrentOrderState extends State<CurrentOrder> {
 
     if (orderState == UNDER_PICK) return Icons.access_time;
 
+    if (orderState == WAITING_CONFIRM) return Icons.access_time;
+
     if (orderState == UNDER_PREPARATION) return Icons.access_time;
 
     if (orderState == SERVED) return Icons.attach_money;
     if (orderState == WAITING_CHECK_OUT) return Icons.access_time;
 
-    if (orderState == CHECKED_OUT) return Icons.local_florist;
+    if (orderState == CHECKED_OUT) return Icons.feedback;
     return Icons.archive;
   }
 
@@ -235,12 +241,14 @@ class _CurrentOrderState extends State<CurrentOrder> {
 
     if (orderState == UNDER_PICK) return Colors.amberAccent;
 
+    if (orderState == WAITING_CONFIRM) return Colors.amberAccent;
+
     if (orderState == UNDER_PREPARATION) return Colors.amberAccent;
 
     if (orderState == SERVED || orderState == WAITING_CHECK_OUT)
       return Colors.black87;
 
-    if (orderState == CHECKED_OUT) return Colors.greenAccent;
+    if (orderState == CHECKED_OUT) return Colors.brown;
 
     return Colors.blueGrey;
   }
