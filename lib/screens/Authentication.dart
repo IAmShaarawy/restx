@@ -92,18 +92,25 @@ class _AuthenticationState extends State<Authentication> {
           try {
             AuthResult result = await FirebaseAuth.instance
                 .signInWithCredential(authCredentials);
-            DocumentReference udr = Firestore.instance
-                .collection("users")
-                .document(result.user.uid);
+            String userId = result.user.uid;
+            DocumentReference udr =
+                Firestore.instance.collection("users").document(userId);
             var userResult = (await udr.get()).data;
 
             if (userResult == null) {
-              await udr.setData({'is_waiter': false,"number":_phoneTextController.text});
+              var userName = "User ${userId.substring(0, 4)}";
+              var userImg = "https://picsum.photos/seed/$userId/200";
+              await udr.setData({
+                'is_waiter': false,
+                "number": _phoneTextController.text,
+                "name": userName,
+                "img": userImg
+              });
               Navigator.pushReplacementNamed(ctx, ROUTE_QR);
             } else {
               if (userResult['is_waiter'] as bool) {
                 Navigator.pushReplacementNamed(ctx, ROUTE_WAITER_HOME);
-              }else{
+              } else {
                 Navigator.pushReplacementNamed(ctx, ROUTE_QR);
               }
             }
