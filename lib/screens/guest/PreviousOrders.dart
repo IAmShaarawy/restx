@@ -60,20 +60,23 @@ class _PreviousOrdersState extends State<PreviousOrders> {
                   .snapshots(),
               builder: (ctx, ss) => !ss.hasData||!ss.data.exists
                   ? Loading()
-                  : SizedBox(
-                      height: 125,
-                      child: Column(
-                        children: <Widget>[
-                          Image.network(
-                            ss.data.data["img"],
-                            height: 110,
-                            width: 110,
-                            fit: BoxFit.fitHeight,
-                          ),
-                          Text("#${e.value}#${ss.data.data["name"]}")
-                        ],
+                  : Container(
+                margin: EdgeInsets.all(8),
+                    child: SizedBox(
+                        height: 125,
+                        child: Column(
+                          children: <Widget>[
+                            Image.network(
+                              ss.data.data["img"],
+                              height: 110,
+                              width: 110,
+                              fit: BoxFit.fitHeight,
+                            ),
+                            Text("#${e.value}#${ss.data.data["name"]}")
+                          ],
+                        ),
                       ),
-                    ),
+                  ),
             ),
           )
           .toList(),
