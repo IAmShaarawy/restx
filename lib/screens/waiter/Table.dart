@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Constants.dart';
 import 'package:restx/screens/Loading.dart';
+import 'package:restx/screens/guest/UserFeedback.dart';
+import 'package:restx/screens/waiter/WaiterFeedback.dart';
 
 class Table extends StatefulWidget {
   @override
@@ -22,6 +24,7 @@ class _TableState extends State<Table> {
             .document(tableId)
             .snapshots(),
         builder: (context, ss) {
+          onStateChange(ss.data.data["state"], ss.data.data["feedback"]);
           return !ss.hasData
               ? Loading()
               : Scaffold(
@@ -75,8 +78,8 @@ class _TableState extends State<Table> {
                   floatingActionButton: FloatingActionButton.extended(
                     onPressed: !decideFABAbility(ss.data.data["state"])
                         ? null
-                        : () => onFAPClick(
-                            ss.data.data["state"], ss.data.documentID),
+                        : () => onFAPClick(ss.data.data["state"],
+                            ss.data.documentID, ss.data.data["feedback"]),
                     elevation:
                         decideFABAbility(ss.data.data["state"]) ? null : 0,
                     label: Text(getFAPLabel(ss.data.data["state"])),
@@ -89,15 +92,18 @@ class _TableState extends State<Table> {
         });
   }
 
+  void onStateChange(String orderState, Map data) {}
+
   bool decideFABAbility(String orderState) {
     return orderState == UNDER_PICK ||
         orderState == WAITING_CONFIRM ||
         orderState == UNDER_PREPARATION ||
         orderState == WAITING_CHECK_OUT ||
-        orderState == CHECKED_OUT;
+        orderState == CHECKED_OUT ||
+        orderState == ARCHIVED;
   }
 
-  void onFAPClick(String orderState, String orderId) async {
+  void onFAPClick(String orderState, String orderId, Map data) async {
     var orderRef = Firestore.instance.collection("orders").document(orderId);
     if (orderState == UNDER_PICK) {
       var user = await FirebaseAuth.instance.currentUser();
@@ -120,6 +126,13 @@ class _TableState extends State<Table> {
     if (orderState == CHECKED_OUT) {
       await orderRef.setData({"state": ARCHIVED}, merge: true);
     }
+
+    if (orderState == ARCHIVED) {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(child: WaiterFeedback(data)),
+      );
+    }
   }
 
   String getFAPLabel(String orderState) {
@@ -137,7 +150,7 @@ class _TableState extends State<Table> {
 
     if (orderState == CHECKED_OUT) return "Happy Client";
 
-    return "Archived";
+    return "Feedback";
   }
 
   IconData getFAPIcon(String orderState) {

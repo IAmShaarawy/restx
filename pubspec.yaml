@@ -24,6 +24,7 @@ dependencies:
   provider: ^4.0.4
   firebase_auth: ^0.15.4
   cloud_firestore: ^0.13.3
+  smooth_star_rating: ^1.1.1
   qr_flutter:
     git:
       url: git://github.com/lukef/qr.flutter.git

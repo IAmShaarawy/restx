@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Constants.dart';
 import 'package:restx/screens/Loading.dart';
+import 'package:restx/screens/guest/UserFeedback.dart';
 
 class CurrentOrder extends StatefulWidget {
   @override
@@ -199,7 +200,12 @@ class _CurrentOrderState extends State<CurrentOrder> {
     }
 
     if (orderState == CHECKED_OUT) {
-      await orderRef.setData({"state": ARCHIVED}, merge: true);
+      final feedback = await showDialog(
+        context: context,
+        builder: (context) => Dialog(child: UserFeedback()),
+      );
+      await orderRef
+          .setData({"state": ARCHIVED, "feedback": feedback}, merge: true);
     }
   }
 
