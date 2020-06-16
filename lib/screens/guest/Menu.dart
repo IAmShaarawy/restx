@@ -10,7 +10,7 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
-  String _catId = "";
+  String _catId = "AzpoKyo5AnCYsyE2PuaT";
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,9 @@ class _MenuState extends State<Menu> {
       body: Column(
         children: <Widget>[
           formCat(),
-          Expanded(child: formMenu(_catId),)
+          Expanded(
+            child: formMenu(_catId),
+          )
         ],
       ),
     );
@@ -46,38 +48,43 @@ class _MenuState extends State<Menu> {
         builder: (ctx, ss) => !ss.hasData
             ? Container()
             : SizedBox(
-          height: 50,
-              child: ListView(
+                height: 50,
+                child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: ss.data.documents
                       .map((doc) => GestureDetector(
-                    onTap:()=> onChangeCat(doc.documentID),    
-                    child: Card(
-                    elevation: 8,
-                    shadowColor: Colors.lightBlue,
-                    margin: EdgeInsets.all(8),
+                            onTap: () => onChangeCat(doc.documentID),
+                            child: Card(
+                              elevation: _catId == doc.documentID ? 8 : 0,
+                              shadowColor: Colors.lightBlue,
+                              margin: EdgeInsets.all(8),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Center(child: Text(doc.data["name"])),
                               ),
                             ),
-                      ))
+                          ))
                       .toList(),
                 ),
-            ),
+              ),
       );
 
-  onChangeCat(String docID){
+  onChangeCat(String docID) {
     setState(() {
       this._catId = docID;
     });
   }
 
   Widget formMenu(String catId) => StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('menu').where("cat",isEqualTo: catId).snapshots(),
+      stream: Firestore.instance
+          .collection('menu')
+          .where("cat", isEqualTo: catId)
+          .snapshots(),
       builder: (context, snapshot) {
-        return !snapshot.hasData
-            ? Loading()
+        return !snapshot.hasData || snapshot.data.documents.length == 0
+            ? Center(
+                child: Text("Doesn't have plates"),
+              )
             : ListView(
                 children: snapshot.data.documents.map((document) {
                 print(document['name']);

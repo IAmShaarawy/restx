@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:restx/screens/Constants.dart';
 import 'package:restx/screens/Loading.dart';
 
@@ -57,7 +58,7 @@ class _PreviousOrdersState extends State<PreviousOrders> {
                   .collection("menu")
                   .document(e.key)
                   .snapshots(),
-              builder: (ctx, ss) => !ss.hasData
+              builder: (ctx, ss) => !ss.hasData||!ss.data.exists
                   ? Loading()
                   : SizedBox(
                       height: 125,
@@ -66,6 +67,8 @@ class _PreviousOrdersState extends State<PreviousOrders> {
                           Image.network(
                             ss.data.data["img"],
                             height: 110,
+                            width: 110,
+                            fit: BoxFit.fitHeight,
                           ),
                           Text("#${e.value}#${ss.data.data["name"]}")
                         ],
