@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:restx/screens/Authentication.dart';
 import 'package:restx/screens/Constants.dart';
+import 'package:restx/screens/guest/CategoryItems.dart';
 import 'package:restx/screens/guest/Menu.dart';
 import 'package:restx/screens/Splash.dart';
 import 'package:restx/screens/guest/QrScanner.dart';
@@ -36,6 +37,7 @@ class _MyAppState extends State<MyApp> {
           routes: {
             ROUTE_QR: (ctx) => QrScanner(),
             ROUTE_MENU: (ctx) => Menu(),
+            ROUTE_CAT_ITEMS:(ctx) =>CategoryItems(),
             ROUTE_AUTH: (ctx) => Authentication(),
             ROUTE_USER_HOME: (ctx) => UserHome(),
             ROUTE_WAITER_HOME: (ctx) => WaiterHome(),

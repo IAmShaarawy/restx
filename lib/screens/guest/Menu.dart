@@ -10,8 +10,6 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
-  String _catId = "AzpoKyo5AnCYsyE2PuaT";
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,103 +30,56 @@ class _MenuState extends State<Menu> {
           ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          formCat(),
-          Expanded(
-            child: formMenu(_catId),
-          )
-        ],
-      ),
+      body: formCat(),
     );
   }
 
   Widget formCat() => StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance.collection("category").snapshots(),
         builder: (ctx, ss) => !ss.hasData
-            ? Container()
-            : SizedBox(
-                height: 50,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: ss.data.documents
-                      .map((doc) => GestureDetector(
-                            onTap: () => onChangeCat(doc.documentID),
+            ? Loading()
+            : ListView(
+                padding: EdgeInsets.all(16),
+                children: ss.data.documents
+                    .map((doc) => GestureDetector(
+                          onTap: () =>
+                              onTapCat(ctx, doc.documentID, doc.data["name"]),
+                          child: SizedBox(
+                            height: 300,
                             child: Card(
-                              elevation: _catId == doc.documentID ? 8 : 0,
-                              shadowColor: Colors.lightBlue,
-                              margin: EdgeInsets.all(8),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(child: Text(doc.data["name"])),
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32.0),
                               ),
+                              margin: EdgeInsets.all(8),
+                              child: Stack(
+                                  overflow: Overflow.visible,
+                                  fit: StackFit.expand,
+                                  children: <Widget>[
+                                    Image.network(
+                                      doc.data["img"],
+                                      fit: BoxFit.cover,
+                                    ),
+                                    Container(
+                                      color: Color.fromRGBO(0, 0, 0, 0.60),
+                                    ),
+                                    Center(
+                                        child: Text(
+                                      doc.data["name"],
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 24),
+                                    )),
+                                  ]),
                             ),
-                          ))
-                      .toList(),
-                ),
+                          ),
+                        ))
+                    .toList(),
               ),
       );
 
-  onChangeCat(String docID) {
-    setState(() {
-      this._catId = docID;
-    });
-  }
-
-  Widget formMenu(String catId) => StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
-          .collection('menu')
-          .where("cat", isEqualTo: catId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        return !snapshot.hasData || snapshot.data.documents.length == 0
-            ? Center(
-                child: Text("Doesn't have plates"),
-              )
-            : ListView(
-                children: snapshot.data.documents.map((document) {
-                print(document['name']);
-                print(document['price']);
-                return Card(
-                  child: StreamBuilder<QuerySnapshot>(
-                      stream:
-                          document.reference.collection('items').snapshots(),
-                      builder: (context, snapshot) {
-                        return ListTile(
-                          onTap: () async {
-                            await updateOrderWithPlates(document.documentID);
-                          },
-                          title: Text(document['name']),
-                          subtitle: Text("${document['price']} L.E"),
-                          leading: SizedBox(
-                              height: 100,
-                              width: 100,
-                              child: Image.network(document['img'])),
-                        );
-                      }),
-                );
-              }).toList());
-      });
-
-  updateOrderWithPlates(String plateId) async {
-    var orderId = await currentTableOrderId();
-    var orderRef = Firestore.instance.collection("orders").document(orderId);
-    var plates = (await orderRef.get()).data["plates"];
-    plates.add(plateId);
-    print(plates);
-    await orderRef.setData({"plates": plates}, merge: true);
-  }
-
-  Future<String> currentTableOrderId() async {
-    var userId = (await FirebaseAuth.instance.currentUser()).uid;
-    var tablesRef = Firestore.instance.collection("tables");
-    var table = (await tablesRef
-            .where("current_user", isEqualTo: userId)
-            .limit(1)
-            .getDocuments())
-        .documents[0];
-
-    return table.data["order_id"];
+  onTapCat(BuildContext ctx, String docID, String catName) {
+    Navigator.pushNamed(ctx, ROUTE_CAT_ITEMS,
+        arguments: {"cat_id": docID, "cat_name": catName});
   }
 
   clearTable() async {
