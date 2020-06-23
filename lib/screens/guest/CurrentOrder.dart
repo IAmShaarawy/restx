@@ -196,7 +196,13 @@ class _CurrentOrderState extends State<CurrentOrder> {
     }
 
     if (orderState == SERVED) {
-      await orderRef.setData({"state": WAITING_CHECK_OUT}, merge: true);
+      final result = await _onCheckout();
+      if (result == null) return;
+      if (result) {
+        await orderRef.setData({"state": WAITING_CHECK_OUT}, merge: true);
+      } else {
+        await orderRef.setData({"state": CHECKED_OUT}, merge: true);
+      }
     }
 
     if (orderState == CHECKED_OUT) {
@@ -376,5 +382,72 @@ class _CurrentOrderState extends State<CurrentOrder> {
       await Navigator.pushNamedAndRemoveUntil(
           context, ROUTE_QR, ModalRoute.withName("/"));
     }
+  }
+
+  Future<bool> _onCheckout() => showModalBottomSheet<bool>(
+      context: context,
+      builder: (context) {
+        return Container(
+          color: Color(0xFF737373),
+          height: 200,
+          child: Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                )),
+            child: _buildCheckoutBottomSheet(),
+          ),
+        );
+      },
+      useRootNavigator: true);
+
+  Widget _buildCheckoutBottomSheet() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              splashColor: Colors.black,
+              iconSize: 100,
+              icon: Icon(
+                Icons.monetization_on,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+            Text(
+              "Cash",
+              style: TextStyle(color: Colors.black),
+            )
+          ],
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              splashColor: Colors.blue,
+              iconSize: 100,
+              icon: Icon(
+                Icons.credit_card,
+                color: Colors.blue,
+              ),
+              onPressed: () async {
+                Navigator.pop(context, false);
+              },
+            ),
+            Text(
+              "Credit",
+              style: TextStyle(color: Colors.blue),
+            )
+          ],
+        ),
+      ],
+    );
   }
 }
